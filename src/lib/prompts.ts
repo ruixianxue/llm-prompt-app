@@ -28,8 +28,32 @@ export function parsePage(value: string | null | undefined) {
   return Number.isInteger(n) && n > 0 ? n : 1;
 }
 
-// Shape returned by the API and used by the UI.
+// Author email is not included on purpose: prompts are public, emails are not.
 export const promptInclude = {
-  tags: { select: { name: true } },
-  author: { select: { id: true, email: true } },
+  tags: { select: { name: true }, orderBy: { name: "asc" } },
 } satisfies Prisma.PromptInclude;
+
+type PromptRow = Prisma.PromptGetPayload<{ include: typeof promptInclude }>;
+
+/** DB row -> API shape: { id, title, body, tags: string[], authorId, createdAt, updatedAt }. */
+export function toPromptDto({ tags, ...rest }: PromptRow) {
+  return { ...rest, tags: tags.map((t) => t.name) };
+}
+
+export type PromptDto = ReturnType<typeof toPromptDto>;
+
+/** Next gives `string | string[] | undefined` for each query param. Keep the first value. */
+export function firstParam(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value[0] : value;
+}
+
+/** Builds "/?q=..&tag=..&page=.." from the current filters plus changes. Drops empty values and page 1. */
+export function listHref(current: PromptFilters, changes: PromptFilters = {}) {
+  const next = { ...current, ...changes };
+  const params = new URLSearchParams();
+  if (next.q) params.set("q", next.q);
+  if (next.tag) params.set("tag", next.tag);
+  if (next.page && next.page > 1) params.set("page", String(next.page));
+  const qs = params.toString();
+  return qs ? `/?${qs}` : "/";
+}

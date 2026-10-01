@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
+import { listTags } from "@/lib/queries";
 
-// TODO: return tag names with prompt counts (_count), sorted by name. Public.
+// Public. GET /api/tags -> { tags: [{ name, count }] }
 export async function GET() {
-  return NextResponse.json({ error: "Not implemented" }, { status: 501 });
+  return NextResponse.json({ tags: await listTags() });
 }

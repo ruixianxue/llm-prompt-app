@@ -1,8 +1,11 @@
-import { NextResponse } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
+import { getPrompt } from "@/lib/queries";
 
-// TODO: public. findUnique with promptInclude, 404 if missing.
-export async function GET() {
-  return NextResponse.json({ error: "Not implemented" }, { status: 501 });
+// Public. GET /api/prompts/:id -> { prompt } or 404
+export async function GET(_request: NextRequest, ctx: RouteContext<"/api/prompts/[id]">) {
+  const prompt = await getPrompt((await ctx.params).id);
+  if (!prompt) return NextResponse.json({ error: "Prompt not found" }, { status: 404 });
+  return NextResponse.json({ prompt });
 }
 
 // TODO: login required (401). Author only (403). Validate with promptInputSchema.partial(),
