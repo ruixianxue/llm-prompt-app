@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth";
+import LogoutButton from "./LogoutButton";
 
 export default async function Header() {
   const user = await getCurrentUser();
@@ -13,8 +14,8 @@ export default async function Header() {
           {user ? (
             <>
               <Link href="/prompts/new">New prompt</Link>
-              {/* TODO: logout button (client component that POSTs /api/auth/logout) */}
-              <span className="text-neutral-500">{user.email}</span>
+              <span className="hidden text-neutral-500 sm:inline">{user.email}</span>
+              <LogoutButton />
             </>
           ) : (
             <>

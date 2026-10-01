@@ -16,6 +16,9 @@ export const hashPassword = (plain: string) => bcrypt.hash(plain, 10);
 export const verifyPassword = (plain: string, hash: string) =>
   bcrypt.compare(plain, hash);
 
+/** Compared against when the email does not exist, so login timing does not leak it. */
+export const DUMMY_HASH = bcrypt.hashSync("not-a-real-password", 10);
+
 export async function signSession(userId: string) {
   return new SignJWT({})
     .setProtectedHeader({ alg: "HS256" })
